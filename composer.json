@@ -1,0 +1,24 @@
+{
+    "name": "istranger/yii2-resource-smart-load",
+    "description": "The extension for prevent reload (on AJAX request) resources, which already exist on client",
+    "type": "yii2-extension",
+    "keywords": ["yii2","resources","reload","scripts","js","client","prevent","css","inline"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "G.Azamat",
+            "email": "m@fx4web.com"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "istranger\\rSmartLoad\\": ""
+        }
+    },
+    "extra": {
+        "bootstrap": "istranger\\rSmartLoad\\BootstrapClass"
+    }
+}
