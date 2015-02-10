@@ -2,6 +2,8 @@ Extension to prevent reloading resources (on AJAX request)
 ==========================================================
 The extension for prevent reload (on AJAX request) resources, which already exist on client
 
+    Note: extension under active development, will be uploaded later
+
 Installation
 ------------
 
