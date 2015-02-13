@@ -37,8 +37,11 @@ abstract class RSmartLoad extends BaseObject
     public $requestReaderClassName;
 
     /**
-     * @var string Current hashing method (for resource names).
-     *             Possible values: see {@link hash_algos} and {@link http://php.net/manual/en/function.hash.php#104987}
+     * @var string|callable Current hashing method (for resource names).<br/>
+     *                      String - name of hashing method, possible values see {@link hash_algos} and
+     *                          {@link http://php.net/manual/en/function.hash.php#104987} <br/>
+     *                      Callback - function, that returned string hash:
+     *                      <code> function ($str) { return hash('md5', $str); } </code>
      */
     public $hashMethod = 'crc32b';
 
@@ -110,7 +113,7 @@ abstract class RSmartLoad extends BaseObject
         }
 
         $supportedHashAlgorithms = hash_algos();
-        if (!in_array($this->hashMethod, $supportedHashAlgorithms)) {
+        if (is_string($this->hashMethod) && !in_array($this->hashMethod, $supportedHashAlgorithms)) {
             $this->throwException('Incorrect hashing method (see SmartLoad option/property "%option%"). ' .
                 'Supported hash algorithms: %hashAlgorithms% ', array(
                 '%hashAlgorithms%' => join(', ', $supportedHashAlgorithms),
@@ -266,7 +269,11 @@ abstract class RSmartLoad extends BaseObject
      */
     protected function hashString($str)
     {
-        return hash($this->hashMethod, $str);
+        if (is_callable($this->hashMethod)) {
+            return call_user_func($this->hashMethod, $str);
+        } else {
+            return hash($this->hashMethod, $str);
+        }
     }
 
     /**
@@ -341,7 +348,7 @@ abstract class RSmartLoad extends BaseObject
     private function _publishExtensionClientInit()
     {
         $extensionOptionsJson = json_encode(array(
-            'hashMethod'                => $this->hashMethod,
+            'hashMethod'                => is_string($this->hashMethod) ? $this->hashMethod : 'php callback function',
             'resourceTypes'             => $this->resourceTypes,
             'enableLog'                 => $this->enableLog,
             'activateOnAllPages'        => $this->activateOnAllPages,
