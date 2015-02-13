@@ -32,8 +32,9 @@ class View extends \yii\web\View implements base\IResourceManager
     protected function setDefaultSmartLoadConfig()
     {
         $this->smartLoadConfig = array_merge(array(
-            'class'                  => RSmartLoad::className(),
-            'requestReaderClassName' => RequestReader::className()
+            'class'                     => RSmartLoad::className(),
+            'disableNativeScriptFilter' => false,
+            'requestReaderClassName'    => RequestReader::className()
         ), $this->smartLoadConfig);
     }
 
@@ -41,6 +42,9 @@ class View extends \yii\web\View implements base\IResourceManager
     {
         parent::init();
         $this->setDefaultSmartLoadConfig();
+        if ($this->smartLoadConfig['disableNativeScriptFilter']) {
+            $this->disableNativeScriptFilter();
+        }
         $this->getRSmartLoad()->init();
     }
 
@@ -52,8 +56,9 @@ class View extends \yii\web\View implements base\IResourceManager
     public function getRSmartLoad()
     {
         if ($this->_rSmartLoad === null) {
-            $smartLoadClassName = base\Helper::pullFromArray($this->smartLoadConfig, 'class');
-            $this->_rSmartLoad = new $smartLoadClassName ($this, $this->smartLoadConfig);
+            $smartLoadClassName = $this->smartLoadConfig['class'];
+            $config = base\Helper::filterByKeys($this->smartLoadConfig, null, ['class', 'disableNativeScriptFilter']);
+            $this->_rSmartLoad = new $smartLoadClassName ($this, $config);
         }
         return $this->_rSmartLoad;
     }
@@ -74,7 +79,8 @@ class View extends \yii\web\View implements base\IResourceManager
      */
     public function addPageJs($jsCode)
     {
-        $this->registerJs($jsCode, self::POS_HEAD);
+        \yii\web\JqueryAsset::register($this);
+        $this->registerJs($jsCode, self::POS_END);
     }
 
     /**
@@ -174,5 +180,25 @@ class View extends \yii\web\View implements base\IResourceManager
             }
             $this->css = $filteredCSS;
         }
+    }
+
+    /**
+     * Disables native filter of duplicate js/css resources (on AJAX request)
+     */
+    protected function disableNativeScriptFilter()
+    {
+        $this->registerJs(join("\n", [
+            '(function(){ // yii-resource-smart-load extension',
+            '   var app = ' . RSmartLoad::JS_GLOBAL_OBJ_PATH . ';',
+            '   var parentFunc = app.addResource;',
+            '   app.addResource = function(hash, resource, comment){',
+            '       var isAlreadyLoaded = Boolean(app.getResourceByHash(hash));',
+            '       if(!isAlreadyLoaded){',
+            '           yii.reloadableScripts.push(resource);',
+            '       }',
+            '       parentFunc.apply(this, arguments);',
+            '   } ',
+            '})();'
+        ]), self::POS_END);
     }
 }

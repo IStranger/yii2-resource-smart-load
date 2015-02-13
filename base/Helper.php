@@ -61,19 +61,22 @@ class Helper extends BaseObject
     }
 
     /**
-     * Removes item (with specified key) from given array, and return it.
-     * If item not found, returns $defaultValue.
+     * Filters items by given keys.
      *
-     * @param  array  &$array           Source array
-     * @param  string $key              Item key
-     * @param  mixed  $defaultValue     Default value, if key not found
-     * @return mixed                    Item value, or default value
+     * @param array $array   source assoc array
+     * @param array $keysInc keys of items, that should be included
+     * @param array $keysExc keys of items, that should be excluded
+     * @return array|mixed|null    filtered array
      */
-    public static function pullFromArray(array &$array, $key, $defaultValue = null)
+    public static function filterByKeys($array, array $keysInc = null, array $keysExc = null)
     {
-        $value = self::value($array, $key, $defaultValue);
-        self::_deleteFromArray($array, $key);
-        return $value;
+        if ($keysInc !== null) {
+            $array = array_intersect_key($array, array_flip($keysInc));
+        }
+        if ($keysExc) {
+            $array = array_diff_key($array, array_flip($keysExc));
+        }
+        return $array;
     }
 
     /**
@@ -162,27 +165,5 @@ class Helper extends BaseObject
             }
         }
         return $resultValue;
-    }
-
-    /**
-     * Remove an array item from a given array using key(path).
-     *
-     * @param  array        &$array
-     * @param  string|array $key
-     * @return array
-     */
-    private static function _deleteFromArray(array &$array, $key)
-    {
-        $original =& $array;
-        $parts = explode('.', $key);
-        while (count($parts) > 1) {
-            $part = array_shift($parts);
-            if (!isset($array[$part]) OR !is_array($array[$part])) {
-                return $array;
-            }
-            $array =& $array[$part];
-        }
-        unset($array[array_shift($parts)]);
-        return $original;
     }
 }

@@ -16,16 +16,15 @@ class RSmartLoad extends base\RSmartLoad
 {
     protected function publishExtensionResources()
     {
-        /**
-         * @var View $resourceManager
-         */
+        /** @var View $resourceManager */
         $resourceManager = $this->getResourceManager();
-        $resourceManager->registerAssetBundle(\yii\web\JqueryAsset::className());
 
         // Initialization of extension resources
         $assetsExt = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'base' . DIRECTORY_SEPARATOR . 'assets';
         $assetsPaths = \Yii::$app->getAssetManager()->publish($assetsExt); // [0] - path, [1] - URL
-        $resourceManager->registerJsFile($assetsPaths[1] . '/resource_smart_load.js');
+        $resourceManager->registerJsFile($assetsPaths[1] . '/resource_smart_load.js', [
+            'depends' => [\yii\web\JqueryAsset::className()]
+        ]);
     }
 
     protected function writeLog($msg)
