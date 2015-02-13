@@ -1,20 +1,21 @@
 <?php
-/**
- * Created by PhpStorm.
- */
 
 namespace istranger\rSmartLoad;
 
-
 use yii\base\BootstrapInterface;
-use yii\base\Application;
 
+/**
+ * Bootstrap class for
+ *
+ * @author  G.Azamat <m@fx4web.com>
+ * @link    http://fx4.ru/
+ * @link    https://github.com/IStranger/yii2-resource-smart-load
+ * @since   2.0.2
+ */
 class BootstrapClass implements BootstrapInterface
 {
     public function bootstrap($app)
     {
-        $app->on(Application::EVENT_BEFORE_REQUEST, function () {
-            echo 'My BootstrapClass from extension';
-        });
+        // init of extension
     }
 }
