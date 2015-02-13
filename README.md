@@ -31,7 +31,7 @@ and browser not to accept cookies. However, we assume the probability of such ev
 
 + **Installation via composer:** add to your composer.json file ("require" section) the following line  <code>"istranger/yii2-resource-smart-load": "*"</code>
   (see <a href="https://packagist.org/packages/istranger/yii2-resource-smart-load">packagist page</a>)
-+ Add in config file (by default config/main.php):
++ Add in config file (by default /config/web.php):
 
 ```php
 'components' => [
@@ -73,9 +73,11 @@ and browser not to accept cookies. However, we assume the probability of such ev
 
 By default, this extension disables reloading of js files only, css files and js/css inline blocks not tracked 
 (see option **resourceTypes**). But you can (carefully!) disable other resources types. 
+
 That is, each "tracked" resource on the page will be loaded **only once**, even if it will later be removed from this page.
 Therefore, all JS callbacks **on first load** should be bind to the global containers (for example, document) 
 using jQuery-method **.on()**. 
+
 At the subsequent AJAX requests already loaded CSS inline blocks (or CSS files) may be replaced by new content, 
 therefore, in case you have problems with several CSS styles you configure exclusions (see below).
 
@@ -168,7 +170,8 @@ yiiResourceSmartLoad.resources =
 
 ## Similar extensions. Native resource filtration script
 
-To prevent reloading scripts for Yii 1.1.x you can use [nlsclientscript](https://github.com/nlac/nlsclientscript)
+To prevent reloading scripts for Yii 1.1.x you can use [nlsclientscript](https://github.com/nlac/nlsclientscript).
+
 Similar approach used in [Yii 2 core](https://github.com/yiisoft/yii2/blob/master/framework/assets/yii.js#L50).
 
 However, there are a few differences:
