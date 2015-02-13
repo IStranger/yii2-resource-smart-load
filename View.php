@@ -3,6 +3,7 @@
 namespace istranger\rSmartLoad;
 
 use istranger\rSmartLoad\base;
+use yii\helpers\ArrayHelper;
 
 /**
  * Specific View class for SmartLoad
@@ -14,8 +15,19 @@ use istranger\rSmartLoad\base;
  */
 class View extends \yii\web\View implements base\IResourceManager
 {
-
     private $_rSmartLoad;
+
+    /**
+     * @var array Contain URLs of registered JS files. Format: ['key' => 'URL']
+     * @see View::jsFiles
+     */
+    private $_jsFileURLs = [];
+
+    /**
+     * @var array Contain URLs of registered CSS files. Format: ['key' => 'URL']
+     * @see View::cssFiles
+     */
+    private $_cssFileURLs = [];
 
     /**
      * @var array   Config for SmartLoad object. <br/>
@@ -33,11 +45,14 @@ class View extends \yii\web\View implements base\IResourceManager
     {
         $this->smartLoadConfig = array_merge(array(
             'class'                     => RSmartLoad::className(),
-            'disableNativeScriptFilter' => false,
+            'disableNativeScriptFilter' => true,
             'requestReaderClassName'    => RequestReader::className()
         ), $this->smartLoadConfig);
     }
 
+    /**
+     * @inheritdoc
+     */
     public function init()
     {
         parent::init();
@@ -46,6 +61,26 @@ class View extends \yii\web\View implements base\IResourceManager
             $this->disableNativeScriptFilter();
         }
         $this->getRSmartLoad()->init();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function registerJsFile($url, $options = [], $key = null)
+    {
+        $key = $key ?: $url;
+        $this->_jsFileURLs[$key] = $url;
+        parent::registerJsFile($url, $options, $key);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function registerCssFile($url, $options = [], $key = null)
+    {
+        $key = $key ?: $url;
+        $this->_cssFileURLs[$key] = $url;
+        parent::registerCssFile($url, $options, $key);
     }
 
     /**
@@ -112,7 +147,8 @@ class View extends \yii\web\View implements base\IResourceManager
             foreach ($this->jsFiles as $position => $jsFilesGroup) {
                 $filteredJsFiles[$position] = array();
                 foreach ($jsFilesGroup as $key => $jsScriptTag) {
-                    if (call_user_func($callback, $key, RSmartLoad::RESOURCE_TYPE_JS_FILE)) {
+                    $jsURL = ArrayHelper::getValue($this->_jsFileURLs, $key, $key);
+                    if (call_user_func($callback, $jsURL, RSmartLoad::RESOURCE_TYPE_JS_FILE)) {
                         $filteredJsFiles[$position][$key] = $jsScriptTag;
                     }
                 }
@@ -135,7 +171,7 @@ class View extends \yii\web\View implements base\IResourceManager
             foreach ($this->js as $position => $jsGroup) {
                 $filteredJs[$position] = array();
                 foreach ($jsGroup as $key => $jsCode) {
-                    if (call_user_func($callback, $key, RSmartLoad::RESOURCE_TYPE_JS_INLINE)) {
+                    if (call_user_func($callback, $jsCode, RSmartLoad::RESOURCE_TYPE_JS_INLINE)) {
                         $filteredJs[$position][$key] = $jsCode;
                     }
                 }
@@ -155,7 +191,8 @@ class View extends \yii\web\View implements base\IResourceManager
         if ($this->cssFiles) {
             $filteredCSSFiles = array();
             foreach ($this->cssFiles as $key => $cssLinkTag) {
-                if (call_user_func($callback, $key, RSmartLoad::RESOURCE_TYPE_CSS_FILE)) {
+                $cssURL = ArrayHelper::getValue($this->_cssFileURLs, $key, $key);
+                if (call_user_func($callback, $cssURL, RSmartLoad::RESOURCE_TYPE_CSS_FILE)) {
                     $filteredCSSFiles[$key] = $cssLinkTag;
                 }
             }
@@ -174,7 +211,7 @@ class View extends \yii\web\View implements base\IResourceManager
         if ($this->css) {
             $filteredCSS = array();
             foreach ($this->css as $key => $cssStyleTag) {
-                if (call_user_func($callback, $key, RSmartLoad::RESOURCE_TYPE_CSS_INLINE)) {
+                if (call_user_func($callback, $cssStyleTag, RSmartLoad::RESOURCE_TYPE_CSS_INLINE)) {
                     $filteredCSS[$key] = $cssStyleTag;
                 }
             }

@@ -217,7 +217,7 @@ abstract class RSmartLoad extends BaseObject
     protected function filterResourcesByType(array $excludeList, array $types = null)
     {
         $self = $this;
-        $types = $types ?: static::$resourceTypesAll;
+        $types = is_array($types) ? $types : static::$resourceTypesAll;
 
         $incResourceList = array();
         $this->getResourceManager()->resourceFilterByFn(
@@ -229,7 +229,7 @@ abstract class RSmartLoad extends BaseObject
                         $incResourceList[] = $resourceId;
                     }
                 }
-                // $self->_log(array('$resourceId' => $resourceId, '$type' => $type, '$include' => $include));
+                //$self->_log(array('$resourceId' => $resourceId, '$type' => $type, '$include' => $include));
                 return $include;
             });
         return $incResourceList;
