@@ -7,7 +7,8 @@ namespace istranger\rSmartLoad\base;
  *
  * @author  G.Azamat <m@fx4web.com>
  * @link    http://fx4.ru/
- * @link    https://github.com/IStranger/yii2-resource-smart-load
+ * @link    https://github.com/IStranger/yii2-resource-smart-load       Yii 2.0.x ext
+ * @link    https://github.com/IStranger/yii-resource-smart-load        Yii 1.1.x ext
  */
 abstract class RSmartLoad extends BaseObject
 {
