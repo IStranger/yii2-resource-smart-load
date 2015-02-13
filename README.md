@@ -2,7 +2,7 @@
 
 This extension for Yii 2 prevent reload resources (on AJAX request), which already exist on client.
 Similar extension for [yii 1.1.x](https://github.com/IStranger/yii-resource-smart-load).
-This extension has more functionality than the Yii 2 native resource filter, [see detail](#advanced-use-case)
+This extension has more functionality than the Yii 2 native resource filter, [see detail](#similar-extensions-native-resource-filtration-script)
 
 ## Requirements
 
