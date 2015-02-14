@@ -129,44 +129,45 @@ The hash of specific resource can be get through browser console in the global o
 For example:
  
 ```javascript
-yiiResourceSmartLoad.resources = 
-  {
-    "fd425af9": {
-      "resource": "/test_yii/assets/62fbda6e/jquery.maskedinput.js",
-      "hash": "fd425af9",
-      "source": "2015-02-08 23:14:30,
-		GET,
-		url = /test_yii/index.php?r=site/ajaxForm,
-		referrer = http://test.dev/test_yii/index.php?r=site/contact"
+yiiResourceSmartLoad.resources = {
+    "89cb8371": {
+        "resource": "/test_yii2/basic/web/assets/a5ccee6b/jquery.js",
+        "hash": "89cb8371",
+        "source": "2015-02-14 12:27:08,
+            GET,
+            url = http://test.dev/test_yii2/basic/web/index.php?r=site%2Fabout,
+            referrer = http://test.dev/test_yii2/basic/web/index.php"
     },
-    "5e030b8c": {
-      "resource": "jQuery('#yw0').tabs({'collapsible':true});",
-      "hash": "5e030b8c",
-      "source": "2015-02-08 23:14:30,
-		GET,
-		url = /test_yii/index.php?r=site/ajaxForm,
-		referrer = http://test.dev/test_yii/index.php?r=site/contact"
+    "4cc53fc1": {
+        "resource": "/test_yii2/basic/web/assets/94203850/css/bootstrap.css",
+        "hash": "4cc53fc1",
+        "source": "2015-02-14 12:27:08,
+            GET,
+            url = http://test.dev/test_yii2/basic/web/index.php?r=site%2Fabout,
+            referrer = http://test.dev/test_yii2/basic/web/index.php"
     },
-    "5ce96349": {
-      "resource": "(function ($) {   // yii-resource-smart-load extension
-        window.yiiResourceSmartLoad.initExtension({\"...",
-      "hash": "5ce96349",
-      "source": "2015-02-08 23:14:30,
-		GET,
-		url = /test_yii/index.php?r=site/ajaxForm,
-		referrer = http://test.dev/test_yii/index.php?r=site/contact"
+    "b66631ac": {
+        "resource": "jQuery('#w1').yiiGridView({\"filterUrl\":\"/test_yii2/basic/web/index.php?r=user%2Findex\",\"filterSelect...",
+        "hash": "b66631ac",
+        "source": "2015-02-14 12:27:12,
+            GET/AJAX,
+            url = http://test.dev/test_yii2/basic/web/index.php?r=user%2Findex,
+            referrer = http://test.dev/test_yii2/basic/web/index.php?r=site%2Fabout"
     },
-    "d60b9939": {
-      "resource": "jQuery('#contact-form').yiiactiveform({'validateOnSubmit':true,'attributes':[{'id':'ContactForm_name...",
-      "hash": "d60b9939",
-      "source": "2015-02-08 23:29:09,
-		GET/AJAX,
-		url = /test_yii/index.php?r=site/contact,
-		referrer = http://test.dev/test_yii/index.php?r=site/ajaxForm"
+    "125a821d": {
+        "resource": "<style>body {font-size: 110%;}</style>",
+        "hash": "125a821d",
+        "source": "2015-02-14 12:27:11,
+            GET/AJAX,
+            url = http://test.dev/test_yii2/basic/web/index.php?r=site%2Fcontact,
+            referrer = http://test.dev/test_yii2/basic/web/index.php?r=site%2Fabout"
     }
-  }
+}
 ```
 
+## Tests
+
+Tests will be later.
 
 ## Similar extensions. Native resource filtration script
 
