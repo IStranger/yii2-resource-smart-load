@@ -178,43 +178,43 @@ Examples of usage in controller actions (it is assumed that **activateOnAllPages
 #### Disable load of all CSS inline blocks:
     
 ```php
-    Yii::$app->view->getRSmartLoad()->disableResources(['*'], [RSmartLoad::RESOURCE_TYPE_CSS_INLINE]);
+Yii::$app->view->getRSmartLoad()->disableResources(['*'], [RSmartLoad::RESOURCE_TYPE_CSS_INLINE]);
 ```
 Note: specified resources will be excluded from the page for all requests (not only AJAX).
 
 #### Disable load of certain resources files (for all AJAX requests):
 
 ```php
-    if(Yii::$app->request->isAjax){
-        Yii::$app->view->getRSmartLoad()->disableResources(['yii.gridView.js', 'bootstrap.css']);
-    }
+if(Yii::$app->request->isAjax){
+    Yii::$app->view->getRSmartLoad()->disableResources(['yii.gridView.js', 'bootstrap.css']);
+}
 ```
 Note: at normal request (not AJAX) these files will be included into page.
 
 #### Disable load of certain resources files with restriction by type:
 
 ```php
-    Yii::$app->view->getRSmartLoad()->disableResources(['yii.gridView.js', 'bootstrap.css'],[
-        RSmartLoad::RESOURCE_TYPE_CSS_INLINE,
-        RSmartLoad::RESOURCE_TYPE_JS_FILE
-    ]);
+Yii::$app->view->getRSmartLoad()->disableResources(['yii.gridView.js', 'bootstrap.css'],[
+    RSmartLoad::RESOURCE_TYPE_CSS_INLINE,
+    RSmartLoad::RESOURCE_TYPE_JS_FILE
+]);
 ```
 Note: will be disabled only ```'yii.gridView.js'```, because restriction by type has higher priority than $resourceList.
 
 #### Disable load of JS inline blocks and JS, which already exist on client:
 
 ```php
-    $view->getRSmartLoad()->disableLoadedResources(['*'], [
-        RSmartLoad::RESOURCE_TYPE_JS_INLINE, 
-        RSmartLoad::RESOURCE_TYPE_JS_FILE
-    ]);
+$view->getRSmartLoad()->disableLoadedResources(['*'], [
+    RSmartLoad::RESOURCE_TYPE_JS_INLINE, 
+    RSmartLoad::RESOURCE_TYPE_JS_FILE
+]);
 ```
 Note: resources can be disabled only on AJAX request.
 
 #### Disable load of all resources, which already exist on client:
 
 ```php
-    $view->getRSmartLoad()->disableLoadedResources(['*']);
+$view->getRSmartLoad()->disableLoadedResources(['*']);
 ```
 
 ## Tests
