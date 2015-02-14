@@ -169,49 +169,54 @@ abstract class RSmartLoad extends BaseObject
     }
 
     /**
-     * Disables loading of all resources.
+     * Disables loading of given resources. Resource list can contain:
+     * - for JS/CSS files: full URL, basename, or hash
+     * - for JS/CSS inline blocks: full content of block, or hash
+     * - array('*') - disables all resources
      *
-     * <b>ATTENTION!</b> Calling this method disables loading <u><b>all</b></u> resources,
+     * <b>ATTENTION!</b> Calling this method disables loading <b>given</b> resources,
      * even if they will registered after calling this method.
      *
-     * @param string[] $types Types of resources, that should be disabled.
-     *                        Possible values see {@link resourceTypesAll}.
+     * @param string[] $resourceList  List of resources, that should be excluded from the page.
+     * @param string[] $types         Types of resources, that should be tracked. Possible values see
+     *                                {@link RSmartLoad::resourceTypesAll}. By default (=null), tracked all types.
+     *                                This restriction has higher priority than $resourceList.
      *
-     * @see RSmartLoadClientScript::disableLoadedResources
+     * @see RSmartLoad::disableLoadedResources
      */
-    public function disableAllResources(array $types = null)
+    public function disableResources(array $resourceList, array $types = null)
     {
         $self = $this;
-        $this->getResourceManager()->executeRightBeforeResourceRender(function ($resourceManager) use ($self, $types) {
-            $self->_filterResourcesAndUpdateOnClient(array('*'), $types);
+        $this->getResourceManager()->executeRightBeforeResourceRender(function ($resourceManager) use ($self, $types, $resourceList) {
+            $incResources = $this->filterResourcesByType($resourceList, $types);
+            $this->_publishExtensionClientInit();
+            $this->_publishRegisteredResourcesUpdater($incResources);
         });
     }
 
     /**
      * Disables loading of resources, which already loaded on client. <br/>
-     * Used at AJAX requests. List of resource hashes obtained from "client" variable {@link Request::getClientVar}.
+     * Used at AJAX requests. List of resource hashes obtained from "client" variable
+     * {@link RequestReader::getClientVar}.
      *
-     * <b>ATTENTION!</b> Calling this method disables loading <u><b>"client"</b></u> resources,
+     * <b>ATTENTION!</b> Calling this method disables loading <b>"client"</b> resources,
      * even if they will registered after calling this method.
      *
-     * @param string[] $types Types of resources, that should be disabled.
-     *                        Possible values see {@link resourceTypesAll}.
+     * @param string[] $types  Types of resources, that should be disabled.
+     *                         Possible values see {@link resourceTypesAll}. By default (=null), tracked all types.
      *
-     * @see RSmartLoadClientScript::disableAllResources
+     * @see RSmartLoad::disableResources
      */
     public function disableLoadedResources(array $types = null)
     {
-        $self = $this;
-        $this->getResourceManager()->executeRightBeforeResourceRender(function ($resourceManager) use ($self, $types) {
-            $hashList = $self->getLoadedResourcesHashes();
-            $self->_filterResourcesAndUpdateOnClient($hashList, $types);
-        });
+        $hashList = $this->getLoadedResourcesHashes();
+        $this->disableResources($hashList, $types);
     }
 
     /**
      * Filters resources by $excludeList ({@link filterResourcesByType}) depending on given types.
      *
-     * @param string[] $excludeList  List of resources, to be excluded.
+     * @param string[] $excludeList  List of resources, that should be excluded.
      *                               Format of array see in corresponding specific methods.
      * @param string[] $types        Types of resources, that should be filtered.
      *                               Possible values see {@link resourceTypesAll}.
@@ -276,25 +281,6 @@ abstract class RSmartLoad extends BaseObject
             return hash($this->hashMethod, $str);
         }
     }
-
-    /**
-     * Filters resources by $excludeList ({@link filterResourcesByType}) and publishes js code,
-     * that init extension and will update list of included resources (on client).
-     * For details see {@link _publishExtensionClientInit} and {@link _publishRegisteredResourcesUpdater}
-     *
-     * @param string[] $excludeList  List of resources, to be excluded.
-     *                               Format of array see in corresponding specific methods.
-     * @param string[] $types        Types of resources, that should be filtered.
-     *                               Possible values see {@link resourceTypesAll}.
-     *                               Other types will be included certainly.
-     */
-    private function _filterResourcesAndUpdateOnClient(array $excludeList, array $types = null)
-    {
-        $incResources = $this->filterResourcesByType($excludeList, $types);
-        $this->_publishExtensionClientInit();
-        $this->_publishRegisteredResourcesUpdater($incResources);
-    }
-
 
     /**
      * Returns prepared data on registered resources, and current request.
