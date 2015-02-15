@@ -95,7 +95,7 @@ You can more flexible manage resource loading on certain pages using methods (se
 - ``` Yii::$app->view->getRSmartLoad()->disableLoadedResources(array $types = null); ```
     Disables loading of resources, which **already loaded on client**. Calling this method disables loading 
     "client" resources, even if they will registered after calling this method.
-- ``` Yii::$app->view->getRSmartLoad()->disableAllResources(array $resourceList, array $types = null); ```
+- ``` Yii::$app->view->getRSmartLoad()->disableResources(array $resourceList, array $types = null); ```
     Disables loading of **given** resources. Calling this method disables loading given resources, 
     even if they will registered after calling this method. Resource list can contain:
     - for JS/CSS files: full URL, basename, or hash
