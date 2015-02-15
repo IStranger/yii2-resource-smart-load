@@ -20,7 +20,7 @@ class RequestReader extends base\RequestReader
      */
     public function getIsAjax()
     {
-        return \Yii::$app->request->isAjax;
+        return $this->_req()->isAjax;
     }
 
     /**
@@ -28,7 +28,7 @@ class RequestReader extends base\RequestReader
      */
     public function getMethod()
     {
-        return \Yii::$app->request->method;
+        return $this->_req()->method;
     }
 
     /**
@@ -36,7 +36,7 @@ class RequestReader extends base\RequestReader
      */
     public function getCurrentURL()
     {
-        return \Yii::$app->request->absoluteUrl;
+        return $this->_req()->absoluteUrl;
     }
 
     /**
@@ -44,7 +44,7 @@ class RequestReader extends base\RequestReader
      */
     public function getReferrer()
     {
-        return \Yii::$app->request->referrer;
+        return $this->_req()->referrer;
     }
 
     /**
@@ -61,6 +61,15 @@ class RequestReader extends base\RequestReader
      */
     public function getCookieValue($cookieName, $default = null, $attribute = 'value')
     {
-        return ArrayHelper::getValue(\Yii::$app->request->cookies->toArray(), $cookieName . '.' . $attribute, $default);
+        $this->_req()->enableCookieValidation = false;
+        $cookieObj = $this->_req()->cookies->get($cookieName);
+        $this->_req()->enableCookieValidation = true;
+
+        return ArrayHelper::getValue($cookieObj, $attribute, $default);
+    }
+
+    private function _req()
+    {
+        return \Yii::$app->request;
     }
 }

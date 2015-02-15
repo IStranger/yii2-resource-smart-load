@@ -71,6 +71,12 @@ abstract class RSmartLoad extends BaseObject
      */
     public $alwaysReloadableResources = array();
 
+    /**
+     * @var string Name of "client" variable,
+     *             see detail {@link RequestReader::getClientVar}
+     */
+    public $clientVarName = 'resourcesList';
+
     private $_resourceManager;
     private $_requestReader;
 
@@ -163,16 +169,18 @@ abstract class RSmartLoad extends BaseObject
 
     /**
      * Returns list of hashes of resources, which already loaded on client.
-     * This list is sent every ajax-request in "client" variable "resourcesList" {@link Helper::getClientVar}
+     * This list is sent every ajax-request in "client" variable with name {@link RSmartLoad::clientVarName}
      * (see. resourceSmartLoad.getLoadedResources() in resource-smart-load.js)
      *
      * @return string[]     List of hashes (hashed full name of the resource).
      *                      If "client" variable not found, returns empty array()
+     *
+     * @see RequestReader::getClientVar
      * @see resource-smart-load.js
      */
     public function getLoadedResourcesHashes()
     {
-        $resourcesList = $this->getRequestReader()->getClientVar('resourcesList');
+        $resourcesList = $this->getRequestReader()->getClientVar($this->clientVarName);
         return $resourcesList
             ? json_decode($resourcesList)
             : array();
@@ -350,7 +358,8 @@ abstract class RSmartLoad extends BaseObject
             'enableLog'                 => $this->enableLog,
             'activateOnAllPages'        => $this->activateOnAllPages,
             'alwaysReloadableResources' => $this->alwaysReloadableResources,
-            'jsGlobalObjPublicPath'     => $this->jsGlobalObjPublicPath()
+            'jsGlobalObjPublicPath'     => $this->jsGlobalObjPublicPath(),
+            'clientVarName'             => $this->clientVarName,
         ));
         $this->_publishExtensionJs('%extensionObject%.initExtension(%optionsJson%); ', array(
             '%extensionObject%' => self::JS_GLOBAL_OBJ_PRIVATE_PATH,

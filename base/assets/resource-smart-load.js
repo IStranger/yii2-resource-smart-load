@@ -1,5 +1,5 @@
-;
 (function () {
+    "use strict";
     if (window.yiiResourceSmartLoadPrivateObj) {
         return; // Prevent reload of current js file (on AJAX request)
     }
@@ -17,7 +17,6 @@
              * Contain common function, helpers
              */
             fn: {},
-
 
             /**
              * Options of extension (will be exported from server side).
@@ -68,7 +67,13 @@
                  * Public path, that can be used for accessing to current global object.
                  * @type {String}
                  */
-                jsGlobalObjPublicPath: null
+                jsGlobalObjPublicPath: null,
+
+                /**
+                 * Name of "client" variable, see detail {@link resourceSmartLoad.setClientVar}
+                 * @type {String}
+                 */
+                clientVarName: null
             },
 
             /**
@@ -91,7 +96,7 @@
             getResourceByHash: function (hash) {
                 var app = this;
 
-                return app.resources[hash] ? app.resources[hash] : null;
+                return app.resources[hash] || null;
             },
 
             /**
@@ -101,9 +106,9 @@
              * @see resources
              */
             getResourcesHashList: function () {
-                var app = this;
+                var app = this,
+                    result = [];
 
-                var result = [];
                 $.each(app.resources, function (hash, resource) {
                     result.push(resource.hash);
                 });
@@ -121,8 +126,8 @@
              * @see resources
              */
             addResource: function (hash, resource, comment) {
-                var app = this;
-                var isAlreadyLoaded = Boolean(app.getResourceByHash(hash));
+                var app = this,
+                    isAlreadyLoaded = Boolean(app.getResourceByHash(hash));
 
                 if (!isAlreadyLoaded) {
                     app.resources[hash] = {
@@ -140,15 +145,23 @@
              * This is prevents duplicate binding.
              */
             bindAjaxSendHandlerIfNotDefined: function () {
-                var $ = jQuery; // assign actual global instance (for the case, when jQuery reloaded at AJAX request)
-                var app = this;
-                var ajaxSendEvents = $._data(document) && $._data(document).events
-                    ? $._data(document).events.ajaxSend
-                    : undefined;
-                var isHandled = false;
+                var jQ = jQuery, // assign actual global instance (for the case, when jQuery reloaded at AJAX request)
+                    app = this,
+                    clientVarName = app.extensionOptions.clientVarName,
+                    isHandled = false,
+                    ajaxSendEvents = jQ._data(document) && jQ._data(document).events
+                        ? jQ._data(document).events.ajaxSend
+                        : undefined;
+
+                // hook for all ajax-requests, in "client" variable we send hashes of all loaded resources
+                function resourceSmartLoadAjaxSendHandler(event, jqXHR, settings) {
+                    var varsObj = {};
+                    varsObj[clientVarName] = JSON.stringify(app.getResourcesHashList());
+                    app.setClientVar(jqXHR, varsObj, settings.url);
+                }
 
                 if (ajaxSendEvents) {
-                    var bindHandlers = ajaxSendEvents.map(function (event) {
+                    ajaxSendEvents.map(function (event) {
                         if (event.handler.name === resourceSmartLoadAjaxSendHandler.name) {
                             isHandled = true;
                         }
@@ -156,14 +169,8 @@
                     });
                 }
 
-                // hook for all ajax-requests, in "client" variable we send hashes of all loaded resources
-                function resourceSmartLoadAjaxSendHandler(event, jqXHR, settings) {
-                    app.setClientVar(jqXHR, {resourcesList: JSON.stringify(app.getResourcesHashList())}, settings.url);
-                }
-
-
                 if (!isHandled) {
-                    $(document).ajaxSend(resourceSmartLoadAjaxSendHandler);
+                    jQ(document).ajaxSend(resourceSmartLoadAjaxSendHandler);
                 }
                 app.log('Check of global $.ajaxSend handler: ', isHandled
                     ? 'already bind... skipped'
@@ -210,8 +217,8 @@
              * @see http://api.jquery.com/jQuery.ajax/#jQuery-ajax-settings
              */
             setClientVar: function (jqXHR, vars, url) {
-                var app = this;
-                var prefix = 'clientvar';  // Should not contain extraneous characters, otherwise the cookie names/titles can be invalid
+                var app = this,
+                    prefix = 'clientvar';  // Should not contain extraneous characters, otherwise the cookie names/titles can be invalid
                 url = url || '/';
 
                 $.each(vars, function (key, value) {
@@ -231,10 +238,11 @@
              * @param {...*} *   Variable number of parameters
              */
             log: function () {
-                var app = this;
+                var args,
+                    app = this;
 
                 if (app.extensionOptions.enableLog) {
-                    var args = ['ResourceSmartLoad >>  '];
+                    args = ['ResourceSmartLoad >>  '];
                     $.each(arguments, function (key, val) { // copy values from "pseudo array" to normal array
                         args.push(val);
                     });
@@ -251,9 +259,9 @@
              * @returns {String}        Cookie value. If not found, returns undefined
              */
             getCookie: function (name) {
-                var matches = document.cookie.match(new RegExp(
-                    "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-                ));
+                var safeName = name.replace(/([\.$?*|{}\(\)\[\]\\\/\+\^])/g, '\\$1'),
+                    matches = document.cookie.match(new RegExp("(?:^|; )" + safeName + "=([^;]*)"));
+
                 return matches ? decodeURIComponent(matches[1]) : undefined;
             },
 
@@ -262,7 +270,7 @@
              *
              * @param {String} name         Cookie name
              * @param {String} value        Cookie value
-             * @param {Object} [options={}] Addtitional options:
+             * @param {Object} [options={}] Additional options:
              * <ul>
              *     <li>
              *         <b>expires</b> - Expiry time of cookie. Is interpreted differently, depending on the type of:
@@ -282,10 +290,11 @@
             setCookie: function (name, value, options) {
                 options = options || {};
 
-                var expires = options.expires;
+                var d, updatedCookie, propName, propValue,
+                    expires = options.expires;
 
-                if (typeof expires == "number" && expires) {
-                    var d = new Date();
+                if (typeof expires === "number" && expires) {
+                    d = new Date();
                     d.setTime(d.getTime() + expires * 1000);
                     expires = options.expires = d;
                 }
@@ -295,13 +304,15 @@
 
                 value = encodeURIComponent(value);
 
-                var updatedCookie = name + "=" + value;
+                updatedCookie = name + "=" + value;
 
-                for (var propName in options) {
-                    updatedCookie += "; " + propName;
-                    var propValue = options[propName];
-                    if (propValue !== true) {
-                        updatedCookie += "=" + propValue;
+                for (propName in options) {
+                    if (options.hasOwnProperty(propName)) {
+                        updatedCookie += "; " + propName;
+                        propValue = options[propName];
+                        if (propValue !== true) {
+                            updatedCookie += "=" + propValue;
+                        }
                     }
                 }
 
@@ -316,8 +327,9 @@
              * @param {String} [url]        URL for cookie
              */
             deleteCookie: function (name, url) {
-                var fn = this;
-                var value = {expires: -1};  // "Cookie expired"
+                var fn = this,
+                    value = {expires: -1};  // "Cookie expired"
+
                 if (url) {
                     $.extend(value, {path: url});
                 }
@@ -341,10 +353,10 @@
             assignPropertyInNamespace: function (path, value, createNamespaces) {
                 createNamespaces = (createNamespaces === undefined) ? false : createNamespaces;
 
-                var fn = this;
-                var namespaces = path.split('.');
-                var targetProp = namespaces.pop();
-                var targetObj = window;
+                var fn = this,
+                    namespaces = path.split('.'),
+                    targetProp = namespaces.pop(),
+                    targetObj = window;
 
                 if (namespaces[0] === 'window') {
                     namespaces.shift();
@@ -358,8 +370,7 @@
                         }
                         targetObj[namespace] = {};
                     } else if (!fn.isObject(targetObj[namespace])) {
-                        throw exceptPrefix + 'Property "' + namespace +
-                        '" is not an object, therefore, cannot be used as namespace.';
+                        throw exceptPrefix + 'Property "' + namespace + '" is not an object, therefore, cannot be used as namespace.';
                     }
                     targetObj = targetObj[namespace];
                 });
@@ -382,5 +393,5 @@
         };
 
         return resourceSmartLoad;
-    })(jQuery);
-})();
+    }(jQuery));
+}());
