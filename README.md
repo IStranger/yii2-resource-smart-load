@@ -135,7 +135,7 @@ The hash of specific resource can be get through browser console in the global o
 For example:
  
 ```javascript
-yiiResourceSmartLoad.resources = {
+yii.resourceSmartLoad.resources = {
     "89cb8371": {
         "resource": "/test_yii2/basic/web/assets/a5ccee6b/jquery.js",
         "hash": "89cb8371",

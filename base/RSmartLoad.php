@@ -13,9 +13,10 @@ namespace istranger\rSmartLoad\base;
 abstract class RSmartLoad extends BaseObject
 {
     /**
-     * JS path in global namespace to extension client side
+     * JS private path in global namespace to extension client side. Only for internal use.
+     * Public path {@link RSmartLoad::jsGlobalObjPublicPath}
      */
-    const JS_GLOBAL_OBJ_PATH = 'window.yiiResourceSmartLoad';
+    const JS_GLOBAL_OBJ_PRIVATE_PATH = 'window.yiiResourceSmartLoadPrivateObj';
 
     const RESOURCE_TYPE_JS_FILE = 'jsFile';
     const RESOURCE_TYPE_JS_INLINE = 'jsInline';
@@ -77,7 +78,7 @@ abstract class RSmartLoad extends BaseObject
 
     /**
      * Registers client resources of this extension and corresponding scripts.
-     * Should be register jQuery + publish 'resource_smart_load.js'
+     * Should be register jQuery + publish 'resource-smart-load.js'
      */
     abstract protected function publishExtensionResources();
 
@@ -96,6 +97,15 @@ abstract class RSmartLoad extends BaseObject
         $this->_requestReader = new $this->requestReaderClassName;
 
         $this->checkProperties();
+    }
+
+    /**
+     * @return string Public path, that can be used for accessing to global object (extension client side).
+     *                For internal needs, use private path {@link RSmartLoad::JS_GLOBAL_OBJ_PRIVATE_PATH}.
+     */
+    protected function jsGlobalObjPublicPath()
+    {
+        return 'resourceSmartLoad';
     }
 
     /**
@@ -154,11 +164,11 @@ abstract class RSmartLoad extends BaseObject
     /**
      * Returns list of hashes of resources, which already loaded on client.
      * This list is sent every ajax-request in "client" variable "resourcesList" {@link Helper::getClientVar}
-     * (see. resourceSmartLoad.getLoadedResources() in resource_smart_load.js)
+     * (see. resourceSmartLoad.getLoadedResources() in resource-smart-load.js)
      *
      * @return string[]     List of hashes (hashed full name of the resource).
      *                      If "client" variable not found, returns empty array()
-     * @see resourcesmartload/resource_smart_load.js
+     * @see resource-smart-load.js
      */
     public function getLoadedResourcesHashes()
     {
@@ -340,9 +350,10 @@ abstract class RSmartLoad extends BaseObject
             'enableLog'                 => $this->enableLog,
             'activateOnAllPages'        => $this->activateOnAllPages,
             'alwaysReloadableResources' => $this->alwaysReloadableResources,
+            'jsGlobalObjPublicPath'     => $this->jsGlobalObjPublicPath()
         ));
         $this->_publishExtensionJs('%extensionObject%.initExtension(%optionsJson%); ', array(
-            '%extensionObject%' => self::JS_GLOBAL_OBJ_PATH,
+            '%extensionObject%' => self::JS_GLOBAL_OBJ_PRIVATE_PATH,
             '%optionsJson%'     => $extensionOptionsJson,
         ));
     }
@@ -367,7 +378,7 @@ abstract class RSmartLoad extends BaseObject
                 '});',
             ),
             array(
-                '%extensionObject%' => self::JS_GLOBAL_OBJ_PATH,
+                '%extensionObject%' => self::JS_GLOBAL_OBJ_PRIVATE_PATH,
                 '%resourcesJson%'   => $resourcesJson,
             )
         );

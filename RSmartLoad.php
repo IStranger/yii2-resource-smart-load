@@ -14,6 +14,9 @@ use istranger\rSmartLoad\base;
  */
 class RSmartLoad extends base\RSmartLoad
 {
+    /**
+     * @inheritdoc
+     */
     protected function publishExtensionResources()
     {
         /** @var View $resourceManager */
@@ -22,13 +25,27 @@ class RSmartLoad extends base\RSmartLoad
         // Initialization of extension resources
         $assetsExt = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'base' . DIRECTORY_SEPARATOR . 'assets';
         $assetsPaths = \Yii::$app->getAssetManager()->publish($assetsExt); // [0] - path, [1] - URL
-        $resourceManager->registerJsFile($assetsPaths[1] . '/resource_smart_load.js', [
-            'depends' => [\yii\web\JqueryAsset::className()]
+        $resourceManager->registerJsFile($assetsPaths[1] . '/resource-smart-load.js', [
+            'depends' => [
+                \yii\web\JqueryAsset::className(),
+                \yii\web\YiiAsset::className()
+            ]
         ]);
     }
 
+    /**
+     * @inheritdoc
+     */
     protected function writeLog($msg)
     {
         \Yii::getLogger()->log($msg, \yii\log\Logger::LEVEL_INFO, 'resource-smart-load');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function jsGlobalObjPublicPath()
+    {
+        return 'yii.resourceSmartLoad';
     }
 }

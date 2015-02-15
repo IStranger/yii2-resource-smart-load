@@ -226,7 +226,7 @@ class View extends \yii\web\View implements base\IResourceManager
     {
         $this->registerJs(join("\n", [
             '(function(){ // yii-resource-smart-load extension',
-            '   var app = ' . RSmartLoad::JS_GLOBAL_OBJ_PATH . ';',
+            '   var app = ' . RSmartLoad::JS_GLOBAL_OBJ_PRIVATE_PATH . ';',
             '   var parentFunc = app.addResource;',
             '   app.addResource = function(hash, resource, comment){',
             '       var isAlreadyLoaded = Boolean(app.getResourceByHash(hash));',
