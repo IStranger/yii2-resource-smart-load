@@ -201,7 +201,7 @@ Yii::$app->view->getRSmartLoad()->disableResources(['yii.gridView.js', 'bootstra
 ```
 Note: will be disabled only ```'yii.gridView.js'```, because restriction by type has higher priority than $resourceList.
 
-#### Disable load of JS inline blocks and JS, which already exist on client:
+#### Disable load of JS inline blocks and JS files, which already exist on client:
 
 ```php
 $view->getRSmartLoad()->disableLoadedResources(['*'], [
